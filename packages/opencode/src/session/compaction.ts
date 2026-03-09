@@ -207,7 +207,7 @@ When constructing the summary, try to stick to this template:
       tools: {},
       system: [],
       messages: [
-        ...MessageV2.toModelMessages(messages, model, { stripMedia: true }),
+        ...MessageV2.toModelMessages(messages, model, { stripMedia: true, stripTools: true }),
         {
           role: "user",
           content: [
@@ -268,6 +268,9 @@ When constructing the summary, try to stick to this template:
           time: { created: Date.now() },
           agent: userMessage.agent,
           model: userMessage.model,
+          tools: userMessage.tools,
+          system: userMessage.system,
+          format: userMessage.format,
         })
         const text =
           (input.overflow

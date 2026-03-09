@@ -496,7 +496,7 @@ export namespace MessageV2 {
   export function toModelMessages(
     input: WithParts[],
     model: Provider.Model,
-    options?: { stripMedia?: boolean },
+    options?: { stripMedia?: boolean; stripTools?: boolean },
   ): ModelMessage[] {
     const result: UIMessage[] = []
     const toolNames = new Set<string>()
@@ -632,6 +632,21 @@ export namespace MessageV2 {
               type: "step-start",
             })
           if (part.type === "tool") {
+            if (options?.stripTools) {
+              const output =
+                part.state.status === "completed"
+                  ? part.state.time.compacted
+                    ? "[output cleared]"
+                    : part.state.output
+                  : part.state.status === "error"
+                    ? `[error: ${part.state.error}]`
+                    : "[interrupted]"
+              assistantMessage.parts.push({
+                type: "text",
+                text: `[Used tool ${part.tool}: ${output}]`,
+              })
+              continue
+            }
             toolNames.add(part.tool)
             if (part.state.status === "completed") {
               const outputText = part.state.time.compacted ? "[Old tool result content cleared]" : part.state.output
